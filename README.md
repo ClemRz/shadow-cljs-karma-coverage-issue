@@ -1,5 +1,12 @@
 # Karma's Coverage issue demonstration app
 
+This is a fix proposal for Karma's coverage issue.
+
+See `src/main/shadow/build/targets/karma.clj#flush-karma-test-file`.
+
+I don't like how I handled the output file naming/creation + addition of `:output-dir` and tweak of `:output-to`.
+Feel free to enhance that part. 
+
 ## Instructions
 
 First make sure you have chrome headless installed on your system. 
@@ -14,47 +21,20 @@ Finally, download the dependencies and run the tests:
 $ npm install && karma start
 ```
 
-## Actual result
+## Result
 
 ```
----------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-File           | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                             
----------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-All files      |   24.57 |     9.28 |   12.39 |   24.92 |                                                                                                                                                                               
- karma-test.js |   24.57 |     9.28 |   12.39 |   24.92 | ...97,62003,62009-62018,62027,62033,62039,62045,62051,62057,62063-62087,62103-62109,62119-62120,62123,62126-62151,62154-62192,62196-62209,62216,62235-62237,62240-62242,62256 
----------------|---------|----------|---------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--------------|---------|----------|---------|---------|-------------------
+File          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+--------------|---------|----------|---------|---------|-------------------
+All files     |     100 |      100 |     100 |     100 |                   
+ karma-src.js |     100 |      100 |     100 |     100 |                   
+--------------|---------|----------|---------|---------|-------------------
 
 =============================== Coverage summary ===============================
-Statements   : 24.57% ( 9239/37598 )
-Branches     : 9.28% ( 1384/14906 )
-Functions    : 12.39% ( 761/6144 )
-Lines        : 24.92% ( 9164/36773 )
+Statements   : 100% ( 5/5 )
+Branches     : 100% ( 2/2 )
+Functions    : 100% ( 1/1 )
+Lines        : 100% ( 5/5 )
 ================================================================================
 ```
-
-## Expected result
-
-Since there is only one source file (`app.cljs`) with only 1 function (`some-function`) that is fully tested (`app_test.cljs`) we expect to have a 100% coverage reported:
-
-```
----------------|---------|----------|---------|---------|-------------------
-File           | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                                                                                                             
----------------|---------|----------|---------|---------|-------------------
-All files      |  100.00 |   100.00 |  100.00 |  100.00 |                                                                                                                                                                               
-        app.js |  100.00 |   100.00 |  100.00 |  100.00 |  
----------------|---------|----------|---------|---------|-------------------
-
-=============================== Coverage summary ===============================
-Statements   : 100.00% ( x/x )
-Branches     : 100.00% ( 2/2 )
-Functions    : 100.00% ( 1/1 )
-Lines        : 100.00% ( y/y )
-================================================================================
-```
-
-## Remediation
-
-In order for Karma's coverage plugin to return an accurate analysis, we need to have the compiled source code in a separate file from the rest.
-
-Currently, the `:karma` target makes the compiled js code to be dumped into a single file: `karma-test.js` which won't allow us to configure karma in a proper way
-(see `preprocessors` in `karma.conf.js`) nor have an accurate coverage analysis.
