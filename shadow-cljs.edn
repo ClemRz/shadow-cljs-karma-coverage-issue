@@ -1,0 +1,6 @@
+{:builds       {:karma-test {:target    :karma
+                             :ns-regexp "-test$"
+                             :output-to "target/karma-test.js"}}
+
+ :source-paths ["src/main"
+                "src/test"]}
