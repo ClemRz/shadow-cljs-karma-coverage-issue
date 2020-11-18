@@ -1,8 +1,6 @@
-{:builds       {:karma-test {:target        :karma
-                             :src-ns-regexp "^(?=.*?\\bcoverage/\\b)((?!_test\\.cljs).)*$"
-                             :ns-regexp     "-test$"
-                             :output-to     "target/foo"
-                             :output-dir    "target"}}
+{:builds       {:karma-test {:target     :karma-coverage
+                             :ns-regexp  "-test$"
+                             :output-to  "target/karma-test.js"}}
 
  :source-paths ["src/main"
                 "src/test"]}

@@ -1,7 +1,6 @@
-(ns shadow.build.targets.karma
+(ns shadow.build.targets.karma-coverage
   (:refer-clojure :exclude (compile flush resolve))
   (:require
-    [clojure.string :as str]
     [shadow.build :as build]
     [shadow.build.modules :as modules]
     [hiccup.page :refer (html5)]
@@ -9,7 +8,8 @@
     [shadow.build.api :as build-api]
     [shadow.build.output :as output]
     [shadow.build.data :as data]
-    [shadow.build.test-util :as tu]))
+    [shadow.build.test-util :as tu]
+    [clojure.data.json :as json]))
 
 (defn configure [state mode {:keys [runner-ns output-to js-options] :or {runner-ns 'shadow.test.karma} :as config}]
   (let [output-to
@@ -74,9 +74,9 @@
         )))
 
 (defn flush-karma-test-file
-  [{::keys [output-to] :keys [polyfill-js build-sources] :as state} config]
+  [{::keys [output-to] :keys [polyfill-js build-options build-sources] :as state} config]
 
-  (let [src-ns-regexp (-> state :shadow.build/config :src-ns-regexp)
+  (let [output-dir (.getName (:output-dir build-options))
 
         prepend
         (str "var shadow$provide = {};\n"
@@ -86,33 +86,25 @@
                (str "\n" polyfill-js "\n"))
              "goog.global[\"$CLJS\"] = goog.global;\n")
 
-        src
-        (if src-ns-regexp
-          (->> build-sources
-               (map #(data/get-source-by-id state %))
-               (filter #(re-find (re-pattern src-ns-regexp) (:resource-name %)))
-               (map #(data/get-output! state %))
-               (map :js)
-               (str/join "\n"))
-          nil)
-
-        out
+        resources
         (->> build-sources
              (map #(data/get-source-by-id state %))
-             (remove #(= "goog/base.js" (:resource-name %)))
-             (#(if src-ns-regexp (remove (fn [arg] (re-find (re-pattern src-ns-regexp) (:resource-name arg))) %) %))
-             (map #(data/get-output! state %))
-             (map :js)
-             (str/join "\n"))]
+             (remove #(= "goog/base.js" (:resource-name %))))
 
-    ;; FIXME: generate index source map
-    (if src-ns-regexp
-      (let [output-dir (-> state :shadow.build/config :output-dir)]
-        (spit (str output-dir "/karma-libs.js") (str prepend out))
-        (spit (str output-dir "/karma-src.js") src))
-      (spit output-to (str prepend out)))
-    )
+        filenames
+        (->> resources
+             (map :output-name)
+             (map #(str output-dir "/files/" %))
+             (into []))]
 
+    (spit output-to prepend)
+    (spit (io/file output-dir "files.json") (json/write-str filenames :escape-slash false))
+
+    (doseq [rc resources]
+      (let [{:keys [js]} (data/get-output! state rc)
+            out-file (io/file output-dir "files" (:output-name rc))]
+        (io/make-parents out-file)
+        (spit out-file js))))
   state)
 
 (defn flush [state mode config]

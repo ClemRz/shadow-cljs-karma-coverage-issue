@@ -2,10 +2,9 @@ module.exports = function (config) {
     config.set({
         singleRun: true,
         browsers: ['ChromeHeadlessNoSandbox'],
-        basePath: 'target',
-        files: ['karma-*.js'],
+        files: ['target/karma-test.js'].concat(require('./target/files.json')),
         preprocessors: {
-            'karma-src.js': ['coverage']
+            'target/files/coverage.!(*_test).js': ['coverage']
         },
         frameworks: ['cljs-test'],
         plugins: [
