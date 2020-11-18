@@ -7,7 +7,15 @@
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
     "karma-coverage": "^2.0.3",
+    "karma-remap-coverage": "^0.1.5",
+    "npm-force-resolutions": "0.0.3",
     "shadow-cljs": "2.11.7"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "resolutions": {
+    "remap-istanbul": "^0.13.0"
+  },
+  "scripts": {
+    "preinstall": "npx npm-force-resolutions"
+  }
 }

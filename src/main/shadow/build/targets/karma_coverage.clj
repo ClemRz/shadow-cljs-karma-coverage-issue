@@ -86,25 +86,16 @@
                (str "\n" polyfill-js "\n"))
              "goog.global[\"$CLJS\"] = goog.global;\n")
 
-        resources
+        filenames
         (->> build-sources
              (map #(data/get-source-by-id state %))
-             (remove #(= "goog/base.js" (:resource-name %))))
-
-        filenames
-        (->> resources
+             (remove #(= "goog/base.js" (:resource-name %)))
              (map :output-name)
-             (map #(str output-dir "/files/" %))
+             (map #(str output-dir "/cljs-runtime/" %))
              (into []))]
-
+    (output/flush-sources state)
     (spit output-to prepend)
-    (spit (io/file output-dir "files.json") (json/write-str filenames :escape-slash false))
-
-    (doseq [rc resources]
-      (let [{:keys [js]} (data/get-output! state rc)
-            out-file (io/file output-dir "files" (:output-name rc))]
-        (io/make-parents out-file)
-        (spit out-file js))))
+    (spit (io/file output-dir "files.json") (json/write-str filenames :escape-slash false)))
   state)
 
 (defn flush [state mode config]

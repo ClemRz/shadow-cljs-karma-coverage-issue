@@ -4,12 +4,13 @@ module.exports = function (config) {
         browsers: ['ChromeHeadlessNoSandbox'],
         files: ['target/karma-test.js'].concat(require('./target/files.json')),
         preprocessors: {
-            'target/files/coverage.!(*_test).js': ['coverage']
+            'target/cljs-runtime/coverage.!(*test*).js': ['coverage']
         },
         frameworks: ['cljs-test'],
         plugins: [
             'karma-cljs-test',
             'karma-chrome-launcher',
+            'karma-remap-coverage',
             'karma-coverage'
         ],
         colors: true,
@@ -25,13 +26,19 @@ module.exports = function (config) {
             }
         },
 
-        reporters: ['coverage'],
+        reporters: ['coverage', 'remap-coverage'],
 
         coverageReporter: {
             reporters: [
-                {type: 'text'},
-                {type: 'text-summary'},
+                {type: 'in-memory'}
             ]
+        },
+
+        remapOptions: { basePath: './src/main' },
+
+        remapCoverageReporter: {
+            'text': null,
+            'text-summary': null
         }
     })
 }
