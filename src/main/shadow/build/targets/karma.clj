@@ -87,12 +87,14 @@
              "goog.global[\"$CLJS\"] = goog.global;\n")
 
         src
-        (->> build-sources
-             (map #(data/get-source-by-id state %))
-             (#(if src-ns-regexp (filter (fn [arg] (re-find (re-pattern src-ns-regexp) (:resource-name arg))) %) %))
-             (map #(data/get-output! state %))
-             (map :js)
-             (str/join "\n"))
+        (if src-ns-regexp
+          (->> build-sources
+               (map #(data/get-source-by-id state %))
+               (filter #(re-find (re-pattern src-ns-regexp) (:resource-name %)))
+               (map #(data/get-output! state %))
+               (map :js)
+               (str/join "\n"))
+          nil)
 
         out
         (->> build-sources
